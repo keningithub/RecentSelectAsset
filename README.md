@@ -1,4 +1,4 @@
-# RecentSelectAsset
+# RecentSelectAsset for unity
 Navigate through the recently selected assets
 
 ### How to use
