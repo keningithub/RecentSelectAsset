@@ -1,4 +1,4 @@
-﻿
+﻿#if UNITY_EDITOR
 //////////////////////////////////////////////////////////////////////////
 /// 列出最近选中的资源文件, 便于来回跳转
 //////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,10 @@ public class RecentSelectAssetWindow: EditorWindow {
 
 	private static string m_savePath = "Assets/RecentSelectData.asset";
 
-	private static int m_changedCount = 0;
+	//private static int m_changedCount = 0;
 	private static int m_maxRecordCount = 30;
+
+	private static string[] m_typeWhiteList = { ".prefab", ".scene", ".controller", ".playable" };
 
 	//
 	[InitializeOnLoadMethod]
@@ -67,11 +69,21 @@ public class RecentSelectAssetWindow: EditorWindow {
 				break;
 			}
 
+			// filter type
+			var isFiltered = true;
+			foreach (var key in m_typeWhiteList) {
+				if (path.EndsWith(key)) {  
+					isFiltered = false;
+					break;
+				}
+			}
+			if (isFiltered) break;
+
 			// ignore same last
 			if (guid == m_lastGuid) break;
 			m_lastGuid = guid;
 
-			// ignore naviaget operation
+			// ignore self naviaget operation
 			if (m_isIgnore) {
 				m_isIgnore = false;
 			}
@@ -103,14 +115,14 @@ public class RecentSelectAssetWindow: EditorWindow {
 	}
 
 	//
-	[MenuItem("Tools/RecentSelectAsset/ShowWindow %`")]
+	[MenuItem("Tools/RecentSelectAsset/ShowWindow %#`")]
 	private static void ShowWindow() {
 		RemoveInvalidGuid();
 		EditorWindow.GetWindow<RecentSelectAssetWindow>(true, "最近选中的资源文件", true);
 	}
 
 	//
-	[MenuItem("Tools/RecentSelectAsset/Back %,")]
+	[MenuItem("Tools/RecentSelectAsset/Back %#,")]
 	private static void Back() {
 		do {
 			if (m_backStack.Count <= 1) break;
@@ -126,7 +138,7 @@ public class RecentSelectAssetWindow: EditorWindow {
 	}
 
 	//
-	[MenuItem("Tools/RecentSelectAsset/Forward %.")]
+	[MenuItem("Tools/RecentSelectAsset/Forward %#.")]
 	private static void Forward() {
 		do {
 			if (m_forwardStack.Count == 0) break;
@@ -188,6 +200,7 @@ public class RecentSelectAssetWindow: EditorWindow {
 			//
 			if (GUILayout.Button(path)) {
 				SelectAssetByPath(path);
+				this.Close();
 			}
 		}
 	}
@@ -308,3 +321,5 @@ public class RecentSelectAssetWindow: EditorWindow {
 
 
 }
+
+#endif
